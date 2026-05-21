@@ -78,6 +78,38 @@ function Leads() {
     }
   };
 
+  const exportCSV = async () => {
+    try {
+      const res = await api.get(
+        "/leads/export/csv",
+        {
+          responseType: "blob",
+        }
+      );
+
+      const url = window.URL.createObjectURL(
+        new Blob([res.data])
+      );
+
+      const link = document.createElement("a");
+
+      link.href = url;
+
+      link.setAttribute(
+        "download",
+        "leads.csv"
+      );
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      link.remove();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
     fetchLeads();
   }, [search, status, page]);
@@ -90,13 +122,12 @@ function Leads() {
             Leads Dashboard
           </h1>
 
-          <a
-            href="http://localhost:5000/api/leads/export/csv"
-            target="_blank"
+          <button
+            onClick={exportCSV}
             className="bg-green-500 px-6 py-3 rounded-2xl font-semibold"
           >
             Export CSV
-          </a>
+          </button>
 
           <button
             onClick={() => setShowModal(true)}
@@ -199,7 +230,10 @@ function Leads() {
                   </td>
 
                   <td className="p-5 flex gap-3">
-                    <button className="bg-yellow-500 px-4 py-2 rounded-xl">
+                    <button
+                      disabled
+                      className="bg-yellow-500/50 px-4 py-2 rounded-xl cursor-not-allowed"
+                    >
                       Edit
                     </button>
 
