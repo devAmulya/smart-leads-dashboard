@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  # 1. The Database Service
+  database:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  # 2. The Backend Service
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - MONGO_URI=mongodb://database:27017/myapp # Notice how it uses the service name 'database' instead of localhost!
+    depends_on:
+      - database
+
+  # 3. The Frontend Service
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  mongo-data:
