@@ -22,6 +22,15 @@ function Leads() {
   const [totalPages, setTotalPages] =
     useState(1);
 
+  const [showModal, setShowModal] = useState(false);
+
+  const [leadData, setLeadData] = useState({
+    name: "",
+    email: "",
+    status: "new",
+    source: "website",
+  });
+
   const fetchLeads = async () => {
     try {
       const res = await api.get(
@@ -33,6 +42,39 @@ function Leads() {
       setTotalPages(res.data.totalPages);
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const createLead = async () => {
+    try {
+      await api.post("/leads", leadData);
+
+      setShowModal(false);
+
+      setLeadData({
+        name: "",
+        email: "",
+        status: "new",
+        source: "website",
+      });
+
+      fetchLeads();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const deleteLead = async (id: string) => {
+    try {
+      await api.delete(`/leads/${id}`);
+
+      fetchLeads();
+    } catch (error) {
+      console.log(error);
+
+      alert(
+        "Delete failed. Admin access required."
+      );
     }
   };
 
@@ -48,7 +90,18 @@ function Leads() {
             Leads Dashboard
           </h1>
 
-          <button className="bg-linear-to-r from-blue-500 to-purple-600 px-6 py-3 rounded-2xl font-semibold hover:scale-105 transition">
+          <a
+            href="http://localhost:5000/api/leads/export/csv"
+            target="_blank"
+            className="bg-green-500 px-6 py-3 rounded-2xl font-semibold"
+          >
+            Export CSV
+          </a>
+
+          <button
+            onClick={() => setShowModal(true)}
+            className="bg-linear-to-r from-blue-500 to-purple-600 px-6 py-3 rounded-2xl font-semibold hover:scale-105 transition"
+          >
             + Add Lead
           </button>
         </div>
@@ -150,7 +203,10 @@ function Leads() {
                       Edit
                     </button>
 
-                    <button className="bg-red-500 px-4 py-2 rounded-xl">
+                    <button
+                      onClick={() => deleteLead(lead._id)}
+                      className="bg-red-500 px-4 py-2 rounded-xl"
+                    >
                       Delete
                     </button>
                   </td>
@@ -186,6 +242,113 @@ function Leads() {
           </button>
         </div>
       </div>
+      {
+        showModal && (
+          <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4">
+            <div className="w-full max-w-lg bg-gray-900 border border-white/10 rounded-3xl p-8">
+              <h2 className="text-3xl font-bold mb-6">
+                Create Lead
+              </h2>
+
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  placeholder="Name"
+                  value={leadData.name}
+                  onChange={(e) =>
+                    setLeadData({
+                      ...leadData,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full p-4 rounded-2xl bg-black/30 border border-white/10"
+                />
+
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={leadData.email}
+                  onChange={(e) =>
+                    setLeadData({
+                      ...leadData,
+                      email: e.target.value,
+                    })
+                  }
+                  className="w-full p-4 rounded-2xl bg-black/30 border border-white/10"
+                />
+
+                <select
+                  value={leadData.status}
+                  onChange={(e) =>
+                    setLeadData({
+                      ...leadData,
+                      status: e.target.value,
+                    })
+                  }
+                  className="w-full p-4 rounded-2xl bg-black/30 border border-white/10"
+                >
+                  <option value="new">
+                    New
+                  </option>
+
+                  <option value="contacted">
+                    Contacted
+                  </option>
+
+                  <option value="qualified">
+                    Qualified
+                  </option>
+
+                  <option value="lost">
+                    Lost
+                  </option>
+                </select>
+
+                <select
+                  value={leadData.source}
+                  onChange={(e) =>
+                    setLeadData({
+                      ...leadData,
+                      source: e.target.value,
+                    })
+                  }
+                  className="w-full p-4 rounded-2xl bg-black/30 border border-white/10"
+                >
+                  <option value="website">
+                    Website
+                  </option>
+
+                  <option value="instagram">
+                    Instagram
+                  </option>
+
+                  <option value="referral">
+                    Referral
+                  </option>
+                </select>
+
+                <div className="flex gap-4 pt-4">
+                  <button
+                    onClick={createLead}
+                    className="flex-1 bg-blue-500 py-4 rounded-2xl font-semibold"
+                  >
+                    Create
+                  </button>
+
+                  <button
+                    onClick={() =>
+                      setShowModal(false)
+                    }
+                    className="flex-1 bg-gray-700 py-4 rounded-2xl font-semibold"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      }
     </div>
   );
 }
