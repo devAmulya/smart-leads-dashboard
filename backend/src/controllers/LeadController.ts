@@ -85,3 +85,52 @@ export const getLeads = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const updateLead = async (req: Request, res: Response) => {
+  try {
+    const updatedLead = await Lead.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
+
+    if (!updatedLead) {
+      return res.status(404).json({
+        message: "Lead not found",
+      });
+    }
+
+    res.json({
+      message: "Lead updated successfully",
+      updatedLead,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+export const deleteLead = async (req: Request, res: Response) => {
+  try {
+    const deletedLead = await Lead.findByIdAndDelete(
+      req.params.id
+    );
+
+    if (!deletedLead) {
+      return res.status(404).json({
+        message: "Lead not found",
+      });
+    }
+
+    res.json({
+      message: "Lead deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
