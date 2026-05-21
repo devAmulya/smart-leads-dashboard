@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-
+import { useDebounce } from "use-debounce";
 import api from "../api/axios";
 
 interface Lead {
@@ -14,6 +14,8 @@ function Leads() {
   const [leads, setLeads] = useState<Lead[]>([]);
 
   const [search, setSearch] = useState("");
+
+  const [debouncedSearch] = useDebounce(search, 500);
 
   const [status, setStatus] = useState("");
 
@@ -34,7 +36,7 @@ function Leads() {
   const fetchLeads = async () => {
     try {
       const res = await api.get(
-        `/leads?search=${search}&status=${status}&page=${page}&limit=5`
+        `/leads?search=${debouncedSearch}&status=${status}&page=${page}&limit=5`
       );
 
       setLeads(res.data.leads);
@@ -112,7 +114,7 @@ function Leads() {
 
   useEffect(() => {
     fetchLeads();
-  }, [search, status, page]);
+  }, [debouncedSearch, status, page]);
 
   return (
     <div className="min-h-screen bg-linear-to-br from-gray-950 via-black to-gray-900 text-white p-6">
