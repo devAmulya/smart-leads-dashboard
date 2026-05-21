@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import Lead from "../models/Lead";
+import { Parser } from "json2csv";
 
 export const createLead = async (req: any, res: Response) => {
   try {
@@ -128,6 +129,37 @@ export const deleteLead = async (req: Request, res: Response) => {
     res.json({
       message: "Lead deleted successfully",
     });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+export const exportLeadsCSV = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const leads = await Lead.find();
+
+    const fields = [
+      "name",
+      "email",
+      "status",
+      "source",
+      "createdAt",
+    ];
+
+    const json2csv = new Parser({ fields });
+
+    const csv = json2csv.parse(leads);
+
+    res.header("Content-Type", "text/csv");
+
+    res.attachment("leads.csv");
+
+    return res.send(csv);
   } catch (error) {
     res.status(500).json({
       message: "Server Error",
