@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "https://smart-leads-dashboard-ly7f.onrender.com/api",
 });
 
 api.interceptors.request.use((config) => {
